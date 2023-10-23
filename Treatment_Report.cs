@@ -57,7 +57,16 @@ namespace Treatment_Report
             //Definindo a data de inicio da busca
             DateTime startDate = currentDate - TimeSpan.FromDays(120);
 
+            IEnumerable<PatientSummary> patientSummaries = app.PatientSummaries;
+            foreach(PatientSummary patientSummary in patientSummaries)
+            {
+                Patient patient = app.OpenPatient(patientSummary);
 
+
+
+
+                app.ClosePatient();
+            }
 
 
 
@@ -67,7 +76,6 @@ namespace Treatment_Report
 
 
             dataFile.Close();
-
         }
     }
 }
