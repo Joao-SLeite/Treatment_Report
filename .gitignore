@@ -1,0 +1,42 @@
+# Arquivos gerados pela compilação
+bin/
+obj/
+
+# Arquivos de configuração
+*.user
+*.suo
+*.sln.docstates
+
+# Dependências NuGet
+packages/
+
+# Logs e arquivos temporários
+*.log
+*.vspscc
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+
+# Arquivos de build
+[Tt]humbs.db
+*.DS_Store
+
+# Resíduos do Visual Studio
+[Vv][Ss]/
+.vscode/
+
+# Arquivos de compilação
+*.dll
+*.pdb
+*.exe
+
+# Arquivos de publicação
+publish/
+
+# Arquivos de configuração personalizados
+App.config
+Web.config
+
+# Dependências do npm
+node_modules/
