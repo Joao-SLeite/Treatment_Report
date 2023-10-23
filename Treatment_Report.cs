@@ -49,7 +49,23 @@ namespace Treatment_Report
             string outputPath = Path.Combine(baseDirectory, fileName);
 
             StreamWriter dataFile = new StreamWriter(outputPath);
-            dataFile.WriteLine("Curso Ultima Geração");
+
+            //Definindo o Header
+            string header = "ID, Curso, Plano, Acelerador, Status do Plano, Fracionamento, Fracoes Comp/Fracoes Plan, Data do Ult TTO";
+            dataFile.WriteLine(header);
+
+            //Definindo a data de inicio da busca
+            DateTime startDate = currentDate - TimeSpan.FromDays(120);
+
+
+
+
+
+
+
+
+
+
             dataFile.Close();
 
         }
