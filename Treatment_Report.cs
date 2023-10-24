@@ -58,38 +58,55 @@ namespace Treatment_Report
             DateTime startDate = currentDate - TimeSpan.FromDays(120);
 
             IEnumerable<PatientSummary> patientSummaries = app.PatientSummaries;
-            Console.WriteLine(patientSummaries.Count());
+            Console.WriteLine("Quantidade de Pacientes: " + patientSummaries.Count());
             foreach (PatientSummary patientSummary in patientSummaries)
             {
-                Patient patient = app.OpenPatient(patientSummary);
-
-                foreach (Course course in patient.Courses.Where(c => c.CompletedDateTime.HasValue == false && c.Id.ToUpper().Contains("CQ") == false && c.Id.ToUpper().Contains("QA") == false))
+                try
                 {
-                    if (course.StartDateTime >= startDate || course.HistoryDateTime >= startDate)
-                    {
-                        IEnumerable<PlanSetup> planSetups = course.PlanSetups;
-                        foreach (PlanSetup planSetup in planSetups.Where(p => p.IsTreated || p.ApprovalStatus == PlanSetupApprovalStatus.TreatmentApproved))
-                        {
-                            IEnumerable<PlanTreatmentSession> planTreatmentSessions = planSetup.TreatmentSessions;
-                            if (planSetup.PlanType == PlanType.ExternalBeam && planTreatmentSessions.Count() != 0 && planTreatmentSessions.FirstOrDefault().HistoryDateTime >= startDate)
-                            {
+                    Patient patient = app.OpenPatient(patientSummary);
 
+                    foreach (Course course in patient.Courses.Where(c => c.IsCompleted() == false && c.Id.ToUpper().Contains("CQ") == false && c.Id.ToUpper().Contains("QA") == false))
+                    {
+                        if (course.StartDateTime >= startDate || course.HistoryDateTime >= startDate)
+                        {
+                            IEnumerable<PlanSetup> planSetups = course.PlanSetups;
+                            foreach (PlanSetup planSetup in planSetups.Where(p => p.IsTreated || p.ApprovalStatus == PlanSetupApprovalStatus.TreatmentApproved))
+                            {
+                                List<DateTime> dateSessions = new List<DateTime>();
+
+                                IEnumerable<PlanTreatmentSession> planTreatmentSessions = planSetup.TreatmentSessions;
+                                if (planSetup.PlanType == PlanType.ExternalBeam && planTreatmentSessions.Count() != 0 && planTreatmentSessions.FirstOrDefault().HistoryDateTime >= startDate)
+                                {
+                                    foreach (PlanTreatmentSession planTreatmentSession in planTreatmentSessions)
+                                    {
+                                        if (planTreatmentSession.Status == TreatmentSessionStatus.Completed)
+                                        {
+                                            dateSessions.Add(planTreatmentSession.HistoryDateTime);
+                                        }
+                                    }
+
+                                    string dateLastTreatment = "Inicio";
+                                    if (dateSessions.Count() != 0)
+                                    {
+                                        dateLastTreatment = dateSessions.Max().ToString();
+                                    }
+                                    string output = $"{patient.Id}, {course.Id}, {planSetup.Id}, {planSetup.Beams.FirstOrDefault().TreatmentUnit}, {planSetup.ApprovalStatus}," +
+                                        $"{planSetup.NumberOfFractions}x{planSetup.DosePerFraction}," +
+                                        $"{dateSessions.Count()}|{planSetup.NumberOfFractions}, {dateLastTreatment}";
+                                    dataFile.WriteLine(output);
+                                    Console.WriteLine(output);
+                                }
                             }
                         }
                     }
+                    app.ClosePatient();
+                }
+                catch (ApplicationException)
+                {
+                    continue;
                 }
 
-
-                app.ClosePatient();
             }
-
-
-
-
-
-
-
-
             dataFile.Close();
         }
     }
