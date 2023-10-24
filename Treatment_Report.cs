@@ -58,11 +58,26 @@ namespace Treatment_Report
             DateTime startDate = currentDate - TimeSpan.FromDays(120);
 
             IEnumerable<PatientSummary> patientSummaries = app.PatientSummaries;
-            foreach(PatientSummary patientSummary in patientSummaries)
+            Console.WriteLine(patientSummaries.Count());
+            foreach (PatientSummary patientSummary in patientSummaries)
             {
                 Patient patient = app.OpenPatient(patientSummary);
 
+                foreach (Course course in patient.Courses.Where(c => c.CompletedDateTime.HasValue == false && c.Id.ToUpper().Contains("CQ") == false && c.Id.ToUpper().Contains("QA") == false))
+                {
+                    if (course.StartDateTime >= startDate || course.HistoryDateTime >= startDate)
+                    {
+                        IEnumerable<PlanSetup> planSetups = course.PlanSetups;
+                        foreach (PlanSetup planSetup in planSetups.Where(p => p.IsTreated || p.ApprovalStatus == PlanSetupApprovalStatus.TreatmentApproved))
+                        {
+                            IEnumerable<PlanTreatmentSession> planTreatmentSessions = planSetup.TreatmentSessions;
+                            if (planSetup.PlanType == PlanType.ExternalBeam && planTreatmentSessions.Count() != 0 && planTreatmentSessions.FirstOrDefault().HistoryDateTime >= startDate)
+                            {
 
+                            }
+                        }
+                    }
+                }
 
 
                 app.ClosePatient();
